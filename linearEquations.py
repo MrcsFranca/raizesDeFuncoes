@@ -320,23 +320,33 @@ def gaussJacobi(A, results, tolerance, maxIt, xk = None):
 
     numVariables = len(A)
 
-
     subHeadQuartersList = subDeterminant(A)
     for sub in subHeadQuartersList:
         if sub == 0:
             return "A matriz tem determinante igual a 0, logo não tem solução por este método"
 
     for i in range(numVariables):
-        if math.fabs(A[i, i]) < 1.0e-12:
-            swap = False
+        row = i
+        swap = True
+        for j in range(i, numVariables):
+            pivotVal = math.fabs(A[j, i])
+            rowSum = sum(math.fabs(A[j, k]) for k in range(numVariables) if k != i)
+
+            if pivotVal >= rowSum:
+                row = j
+                swap = True
+                break
+
+        if not swap:
+            maxVal = math.fabs(A[i, i])
             for j in range(i + 1, numVariables):
-                if math.fabs(A[j, i]) > 1.0e-12:
-                    A[[i, j]] = A[[j, i]]
-                    results[[i, j]] = results[[j, i]]
-                    swap = True
-                    break
-            if not swap:
-                return "A matriz tem determinante igual a 0, logo não tem solução por este método"
+                if math.fabs(A[j, i]) > maxVal:
+                    maxVal = math.fabs(A[j, i])
+                    row = j
+
+        if row != i:
+            A[[i, row]] = A[[row, i]]
+            results[[i, row]] = results[[row, i]]
 
     gaussJacobiConvergence(A.copy())
 
@@ -402,16 +412,27 @@ def gaussSeidel(A, results, tolerance, maxIt, xk = None):
     numVariables = len(A)
 
     for i in range(numVariables):
-        if math.fabs(A[i, i]) < 1.0e-12:
-            swap = False
+        row = i
+        swap = True
+        for j in range(i, numVariables):
+            pivotVal = math.fabs(A[j, i])
+            rowSum = sum(math.fabs(A[j, k]) for k in range(numVariables) if k != i)
+
+            if pivotVal >= rowSum:
+                row = j
+                swap = True
+                break
+
+        if not swap:
+            maxVal = math.fabs(A[i, i])
             for j in range(i + 1, numVariables):
-                if math.fabs(A[j, i]) > 1.0e-12:
-                    A[[i, j]] = A[[j, i]]
-                    results[[i, j]] = results[[j, i]]
-                    swap = True
-                    break
-            if not swap:
-                return "A matriz tem determinante igual a 0, logo não tem solução por este método"
+                if math.fabs(A[j, i]) > maxVal:
+                    maxVal = math.fabs(A[j, i])
+                    row = j
+
+        if row != i:
+            A[[i, row]] = A[[row, i]]
+            results[[i, row]] = results[[row, i]]
 
     sassenfeld(A.copy())
 
